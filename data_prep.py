@@ -7,8 +7,7 @@ import numpy as np
 import yfinance as yf
 import mplfinance as mpf
 from pandas_datareader import data as pdr
-from PIL import Image
-# import cv2
+import cv2
 from tqdm import tqdm
 import logging
 import shutil
@@ -53,7 +52,9 @@ def main():
 
     symbols = df["Symbol"].values
 
-    chunk_size = 100
+    print("Number of symbols total:", len(symbols))
+
+    chunk_size = 50
 
     chunk_count = len(list(range(0, len(symbols), chunk_size)))
 
@@ -64,16 +65,19 @@ def main():
 
     for chunk_i in range(0, len(symbols), chunk_size):
 
+        symbols_in_chunk = symbols[chunk_i:chunk_i+chunk_size]
+
         training_data = []
 
         npy_file_name = f"{directory}/{chunk_i}.npy"
 
-        logging.info(f'Saving chunk {chunk_i} of {chunk_count}...')
+        logging.info(f'Saving chunk {chunk_i} of {chunk_count}, number of symbols in chunk: {len(symbols_in_chunk)} ...')
 
-        for symbol in tqdm(symbols[chunk_i:chunk_i+chunk_size]):
+        for symbol in tqdm(symbols_in_chunk):
             try:
                 disable_print()
                 df = pdr.get_data_yahoo(symbol, dt.datetime(2000, 1, 1), dt.datetime(2020, 10, 1))
+                # df.to_csv(f"data/csv/{symbol}.csv")
                 enable_print()
                 if df is None or len(df) == 0:
                     raise FileNotFoundError
@@ -95,8 +99,7 @@ def main():
                         mpf.plot(df_X, type='candle', style=s, mav=(10, 30), volume=True, axisoff=True, figscale=0.5,
                                  savefig=file_name)
 
-                        img = Image.open(file_name)
-                        # img = cv2.imread(file_name)
+                        img = cv2.imread(file_name)
                         os.remove(file_name)
 
                         cropped_img = img[y:y+h, x:x+w]
@@ -111,7 +114,7 @@ def main():
                         pass
                         # logging.info(f"{symbol} failed for year {month} month {month}")
 
-        np.save(npy_file_name, training_data)
+        np.save(npy_file_name, training_data, allow_pickle=True)
         logging.info(f'Saved chunk {chunk_i} of {chunk_count}, length {len(training_data)}')
 
     logging.info("Success!")
