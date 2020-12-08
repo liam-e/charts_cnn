@@ -97,7 +97,7 @@ def main():
 
                         img = Image.open(file_name)
                         # img = cv2.imread(file_name)
-                        # os.remove(file_name)
+                        os.remove(file_name)
 
                         cropped_img = img[y:y+h, x:x+w]
 
@@ -113,7 +113,6 @@ def main():
 
         np.save(npy_file_name, training_data)
         logging.info(f'Saved chunk {chunk_i} of {chunk_count}, length {len(training_data)}')
-        break
 
     logging.info("Success!")
 
