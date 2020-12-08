@@ -58,7 +58,7 @@ def generate_charts():
 
     print("Number of symbols total:", len(symbols))
 
-    chunk_size = 5
+    chunk_size = 50
 
     chunk_count = len(list(range(0, len(symbols), chunk_size)))
 
